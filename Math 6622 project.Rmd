@@ -1,0 +1,191 @@
+---
+title: "Math 6620 Project"
+author: "Benjamin Smith and Omesh Chandan"
+date: "2/25/2021"
+output: html_document
+---
+## Introduction 
+
+The sinking of the Titanic is one of the most infamous shipwrecks in history.
+
+  On April 15, 1912, during her maiden voyage, the widely considered “unsinkable” RMS Titanic sank after colliding with an iceberg. Unfortunately, there were not enough lifeboats for everyone on board, resulting in the death of 1502 out of 2224 passengers and crew. While there was some element of luck involved in surviving, it seems some groups of people were more likely to survive than others.
+  
+  In this report we will explore the data set on the passengers of the Titanic and determine what are the key factors for predicting passenger survival. After this we will proceed with showing a developed model and go through the required diagnostics 
+
+## The Data
+
+  The data set is an openly available on [Kaggle.com](https://www.kaggle.com/c/titanic/overview) as one of their available competitions. However, make this analysis as reproducible as possible we have downloaded the the data with the `readr` package from the gist posted by Micheleen Harris ([here](https://gist.github.com/michhar/2dfd2de0d4f8727f873422c5d959fff5)).  
+
+The data set consists of 12 variables. The data dictionary is posted with the [data description on the Kaggle site](https://www.kaggle.com/c/titanic/data). For convenience it will be written here to provide a description each variable.
+
+### Data Dictionary
+
+* PassengerId : Id assigned  to each passenger
+
+* Survived:	Survival	0 = No, 1 = Yes
+
+* Pclass:	Ticket class	1 = 1st, 2 = 2nd, 3 = 3rd
+
+* Name: Name of the passenger
+
+* Sex:	Sex	of the passenger
+
+* Age:	Age of the passenger in years	
+
+* SibSp:	# of siblings / spouses aboard the Titanic	
+
+* Parch:	# of parents / children aboard the Titanic	
+
+* Ticket:	Ticket number	
+
+* Fare:	Passenger fare	
+
+* Cabin:	Cabin number	
+
+* Embarked:	Port of Embarkation	C = Cherbourg, Q = Queenstown, S = Southampton
+
+## Objectives
+
+The objective of this report will be to seek to answer the following questions.
+
+1. Is there a higher probability of survival depending on a passenger's sex?
+
+2. Is there a higher probability of survival depending on ticket class?
+
+3. Is age a determining factor for survival?
+
+4.  (other question)
+
+5. Can the interaction of variable help predict survival?
+
+
+```{r}
+
+# Read data from online
+df<- readr::read_csv("https://gist.githubusercontent.com/michhar/2dfd2de0d4f8727f873422c5d959fff5/raw/fa71405126017e6a37bea592440b4bee94bf7b9e/titanic.csv")
+```
+
+
+```{r}
+library(naniar)
+
+miss_var_summary(df)
+vis_miss(df)
+```
+
+# Exploratory Data Analysis
+
+```{r}
+library(tidyverse)
+survivalProp <- df %>% group_by(Sex,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+PclassProp<-df %>% group_by(Pclass,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ParchProp<-df %>% group_by(Parch,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+SibSpProp<-df %>% group_by(SibSp,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("Yes","No"))+
+  labs(title="Survival on The Titanic",subtitle = "Male vs Female")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+ggplot(data=PclassProp,mapping=aes(x=Pclass,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Ticket Class")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+
+ggplot(data=ParchProp,mapping=aes(x=Parch,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Number of Parents and/or Children Present with Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+ggplot(data=SibSpProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Number of Siblings and/or Spouse Present with Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+```
+
+```{r}
+# This is altered from original
+survivalProp <- df %>% group_by(Sex,Pclass,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+SibSpProp<-df %>% group_by(SibSp,Sex,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ggplot(data=df,mapping=aes(x=Age,fill=Sex))+
+  geom_histogram(bins=20)+
+  facet_grid(~Sex)+
+  labs(title="Age Distribution on the Titanic",subtitle = "by Sex")+
+  theme(legend.position = "none")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+ggplot(data=df,mapping=aes(x=Age,fill=Sex))+
+  geom_histogram(bins=20)+
+  facet_grid(Sex~Survived)+
+  labs(title="Age Distribution on the Titanic and Survival",subtitle = "by Sex")+
+  theme(legend.position = "none")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+ggplot(data=df,mapping=aes(x=Age,fill=Sex))+
+  geom_histogram(bins=20)+
+  facet_grid(Pclass~Survived)+
+  labs(title="Age Distribution on the Titanic based on  Survival",subtitle = "by Sex and Ticket Class")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+
+ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~Pclass)+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=0.75)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("Yes","No"))+
+  labs(title="Survival on The Titanic",subtitle = "Male vs Female, by Ticket Class")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+
+ggplot(data=SibSpProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~Sex)+
+  geom_text(mapping= aes(label=Count),position="stack",size=3, vjust=+1.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Number of Siblings and/or Spouse Present with Passenger and Sex")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+```
+
+
