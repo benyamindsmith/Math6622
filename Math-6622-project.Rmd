@@ -6,7 +6,7 @@ output:
   word_document: default
   html_document: default
 ---
-## Introduction 
+# Introduction 
 
 The sinking of the Titanic is one of the most infamous shipwrecks in history.
 
@@ -14,13 +14,13 @@ The sinking of the Titanic is one of the most infamous shipwrecks in history.
   
   In this report we will explore the data set on the passengers of the Titanic and determine what are the key factors for predicting passenger survival. After this we will proceed with showing a developed model and examine the necessary diagnostics.
 
-## The Data
+# The Data
 
   The data set is an openly available on [Kaggle.com](https://www.kaggle.com/c/titanic/overview) as one of their available competitions. However, make this analysis as reproducible as possible we have downloaded the the data with the `readr` package from the gist posted by Micheleen Harris ([here](https://gist.github.com/michhar/2dfd2de0d4f8727f873422c5d959fff5)).  
 
 The data set consists of 12 variables. The data dictionary is posted with the [data description on the Kaggle site](https://www.kaggle.com/c/titanic/data). For convenience it will be written here to provide a description each variable.
 
-### Data Dictionary
+## Data Dictionary
 
 * PassengerId : Id assigned  to each passenger
 
@@ -46,7 +46,7 @@ The data set consists of 12 variables. The data dictionary is posted with the [d
 
 * Embarked:	Port of Embarkation	C = Cherbourg, Q = Queenstown, S = Southampton
 
-## Exploratory Data Analysis
+# Exploratory Data Analysis
 
 Before constructing a model, we should examine the relationships present between the various variables, survival and their various interactions. With this we can choose which parameters would be suitable. With this in mind the following visuals are created as part of the EDA to provide insight on what variables would be suitable for constructing a model for predicting passenger survival.
 
@@ -57,7 +57,7 @@ df<- readr::read_csv("https://gist.githubusercontent.com/michhar/2dfd2de0d4f8727
 ```
 
 
-### Questions
+## Questions
 
 The questions we are interesting in answering with this exploratory data analysis are:
 
@@ -73,7 +73,7 @@ The questions we are interesting in answering with this exploratory data analysi
 
   6. How does the interaction of these variables relate to survival on the Titanic?  
 
-### Missing Data
+## Missing Data
 
 Before examining the data it is important to first see what data is missing. Even if there is no treatment done to the missing data, awareness of missing data for a given variable is important to know about before adding it as a variable to our model. 
 
@@ -92,7 +92,7 @@ In the entire data set, 8.1% of the data is missing. Missing data is present in 
 With the missing data acknowledged, lets will proceed with looking at the relationships with various variables and passenger survival.
 
 
-### Sex of Passenger and Survival
+## Sex of Passenger and Survival
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 survivalProp <- df %>% group_by(Sex,Survived) %>% 
   summarize(count=n()) %>% 
@@ -111,7 +111,7 @@ ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
 
 Overall, women on the Titanic were 3.9 times more likely to survive than men. Men on the Titanic were  3.1 times more likely to die than women.
 
-### Ticket Class of Passenger and Survival
+## Ticket Class of Passenger and Survival
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 PclassProp<-df %>% group_by(Pclass,Survived)%>% 
@@ -133,7 +133,7 @@ ggplot(data=PclassProp,mapping=aes(x=Pclass,y=pct,fill=as.factor(Survived)))+
 
   Passengers in third class were 1.4 times more likely to die than passengers on second class and were over 2 times more likely to die than passengers in first class.
 
-### Age and Survival
+## Age and Survival
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -150,7 +150,7 @@ ggplot(data=df,mapping=aes(x=Age))+
 ```
 Looking at the distribution of age alone. There does not seem to be any outstanding relationship between age and survival. 
 
-### Number of passenger relatives and survival.
+## Number of passenger relatives and survival.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ParchProp<-df %>% group_by(Parch,Survived)%>% 
@@ -181,7 +181,12 @@ ggplot(data=SibSpProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
   labs(title="Survival on The Titanic",subtitle = "Based On Number of Siblings\nand/or Spouse Present with Passenger")+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 ```
-Based on both these charts having/not having a spouse, sibling parent or child with an individual has an effect on the probability of survival. 
+Based on both these charts having/not having a spouse, sibling parent or child with an individual has an effect on the probability of survival. Individuals who came alone and with 1-3 parents/children had a higher probability of survival than those who came with more. However the number of individuals with 3-6 parents and/or children with them is small, however because the numbers for individuals who came alone and with 1-2 parents/children is significant for the data set, it is worthwhile to consider this in a model.
+
+Similarly with presence of siblings and/or a spouse individuals who came alone or had 1-4 siblings and/or a spouse with them had a higher probability than those who came with more (however the numbers for people who came with more than 5 siblings and/or a spouse is small). In particular those who came with one other person had the highest probability of survival.
+
+## Interaction of Variables
+
 
 # THIS IS A MESS HERE DON'T LOOK 
 
