@@ -213,73 +213,18 @@ ggplot(data=sexClassSurvival,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 
 ```
-The 
+The probability of survival for women on the Titanic in first and second class was over 90 percent. However male passengers in first class were 19.7 times more likely to die than than females in the same class. Men in 3rd class were 1.37 times more likely to die than men in first class. Probability of survival for men in first class is more than double that of men in second and third class.
+
+### Sex, age and survival.
+
+```{r}
+
+```
+
 
 
 # THIS IS A MESS HERE DON'T LOOK 
 
-# Exploratory Data Analysis
-
-```{r}
-#Comment for github
-library(tidyverse)
-survivalProp <- df %>% group_by(Sex,Survived) %>% 
-  summarize(count=n()) %>% 
-  mutate(pct=count/sum(count),Count=count)
-
-PclassProp<-df %>% group_by(Pclass,Survived)%>% 
-  summarize(count=n()) %>% 
-  mutate(pct=count/sum(count),Count=count)
-
-ParchProp<-df %>% group_by(Parch,Survived)%>% 
-  summarize(count=n()) %>% 
-  mutate(pct=count/sum(count),Count=count)
-
-SibSpProp<-df %>% group_by(SibSp,Survived)%>% 
-  summarize(count=n()) %>% 
-  mutate(pct=count/sum(count),Count=count)
-
-ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
-  geom_bar(stat="identity",position="fill")+
-  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
-  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
-  scale_fill_manual(name="Survived",
-                    values=c("#F8766D","#00BFC4"),
-                    labels=c("Yes","No"))+
-  labs(title="Survival on The Titanic",subtitle = "Male vs Female")+
-  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
-
-ggplot(data=PclassProp,mapping=aes(x=Pclass,y=pct,fill=as.factor(Survived)))+
-  geom_bar(stat="identity",position="fill")+
-  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
-  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
-  scale_fill_manual(name="Survived",
-                    values=c("#F8766D","#00BFC4"),
-                    labels=c("No","Yes"))+
-  labs(title="Survival on The Titanic",subtitle = "Based On Ticket Class")+
-  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
-
-
-ggplot(data=ParchProp,mapping=aes(x=Parch,y=pct,fill=as.factor(Survived)))+
-  geom_bar(stat="identity",position="fill")+
-  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
-  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
-  scale_fill_manual(name="Survived",
-                    values=c("#F8766D","#00BFC4"),
-                    labels=c("No","Yes"))+
-  labs(title="Survival on The Titanic",subtitle = "Based On Number of Parents and/or Children Present with Passenger")+
-  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
-
-ggplot(data=SibSpProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
-  geom_bar(stat="identity",position="fill")+
-  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
-  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
-  scale_fill_manual(name="Survived",
-                    values=c("#F8766D","#00BFC4"),
-                    labels=c("No","Yes"))+
-  labs(title="Survival on The Titanic",subtitle = "Based On Number of Siblings and/or Spouse Present with Passenger")+
-  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
-```
 
 ```{r}
 # This is altered from original
