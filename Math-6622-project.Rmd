@@ -2,7 +2,9 @@
 title: "Math 6620 Project"
 author: "Benjamin Smith and Omesh Chandan"
 date: "2/25/2021"
-output: html_document
+output:
+  html_document: default
+  word_document: default
 ---
 ## Introduction 
 
@@ -46,7 +48,9 @@ The data set consists of 12 variables. The data dictionary is posted with the [d
 
 ## Exploratory Data Analysis
 
-Before constructing a model, we should examine the relationships present between the various variables, survival and their various interactions. With this we can choose which parameters would be suitable. Because the   
+Before constructing a model, we should examine the relationships present between the various variables, survival and their various interactions. With this we can choose which parameters would be suitable. With this in mind the following visuals are created as part of the EDA to provide insight on what variables would be suitable for constructing a model for predicting passenger survivor.
+
+### Sex of Passenger and Survival
 
 ## Objectives
 
