@@ -188,6 +188,7 @@ Based on both these charts having/not having a spouse, sibling parent or child w
 # Exploratory Data Analysis
 
 ```{r}
+#Comment for github
 library(tidyverse)
 survivalProp <- df %>% group_by(Sex,Survived) %>% 
   summarize(count=n()) %>% 
