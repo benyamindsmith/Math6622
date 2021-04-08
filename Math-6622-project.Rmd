@@ -153,7 +153,28 @@ ggplot(data=df,mapping=aes(x=Age))+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 
 ```
-Looking at the distribution of age alone. There does not seem to be any outstanding relationship between age and survival. 
+Looking at the distribution of age alone. There does not seem to be any outstanding relationship between age and survival. This is because age is being treated as a continuous variable. Lets investigate the relationship between survival and age if we were to bin the ages.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df$AgeRange<-cut(df$Age,breaks=c(0,20,40,60,80),include.lowest = TRUE,right=FALSE)
+
+
+AgeRangeProp<-df %>% group_by(AgeRange,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ggplot(data=AgeRangeProp,mapping=aes(x=AgeRange,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+3.8)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Age")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+```
+
+With this binning we see that passengers under the age of 20 gad the largest probability of survival (46.17%) followed by passengers in the range of 40-59 (39.42%) and 20-40 (39.42). It is with this binning that age will be included in the model.
 
 ## Number of passenger relatives and survival.
 
@@ -218,7 +239,20 @@ The probability of survival for women on the Titanic in first and second class w
 ### Sex, age and survival.
 
 ```{r}
+AgeRangeProp<-df %>% group_by(AgeRange,Sex,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
 
+ggplot(data=AgeRangeProp,mapping=aes(x=AgeRange,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_wrap(~Sex)+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+3.8)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Age")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 ```
 
 
