@@ -56,11 +56,29 @@ library(tidyverse)
 df<- readr::read_csv("https://gist.githubusercontent.com/michhar/2dfd2de0d4f8727f873422c5d959fff5/raw/fa71405126017e6a37bea592440b4bee94bf7b9e/titanic.csv")
 ```
 
+
+### Questions
+
+The questions we are interesting in answering with this exploratory data analysis are:
+
+  1. How much data is missing in this dataset?
+
+  2. Is there a higher probability of survival depending on a passenger's sex?
+  
+  3. Is there a higher probability of survival depending on ticket class?
+
+  4. Is age a determining factor for survival?
+  
+  5. Does a passenger having an immediate family member (i.e. a spouse, sibling(s), parent(s) and/or children) with them improve their probability for survival?
+
+  6. How does the interaction of these variables relate to survival on the Titanic?  
+
 ### Missing Data
 
 Before examining the data it is important to first see what data is missing. Even if there is no treatment done to the missing data, awareness of missing data for a given variable is important to know about before adding it as a variable to our model. 
 
-Using the `naniar` package we are able to visualize the proportion of data missing in each variable field. 
+Using the `naniar` package we are able to visualize the proportion of data missing in each variable field.
+
 ```{r echo=FALSE}
 library(naniar)
 
@@ -73,20 +91,6 @@ In the entire data set, 8.1% of the data is missing. Missing data is present in 
 
 With the missing data acknowledged, lets will proceed with looking at the relationships with various variables and passenger survival.
 
-### Questions
-
-The questions we are interesting in answering with this exploratory data analysis are:
-
->1. Is there a higher probability of survival depending on a passenger's sex?
->
->2. Is there a higher probability of survival depending on ticket class?
->
->3. Is age a determining factor for survival?
->
->4. Does having a spouse, sibling(s), parent(s) and/or children with a passenger improve their probability for survival?
->
->5. How does the interaction of these variables relate to survival on the Titanic?  
-
 
 ### Sex of Passenger and Survival
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -97,18 +101,87 @@ survivalProp <- df %>% group_by(Sex,Survived) %>%
 ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
   geom_bar(stat="identity",position="fill")+
   geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
-  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+3.8)+
   scale_fill_manual(name="Survived",
                     values=c("#F8766D","#00BFC4"),
                     labels=c("Yes","No"))+
   labs(title="Survival on The Titanic",subtitle = "Male vs Female")+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 ```
+
 Overall, women on the Titanic were 3.9 times more likely to survive than men. Men on the Titanic were  3.1 times more likely to die than women.
 
+### Ticket Class of Passenger and Survival
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+PclassProp<-df %>% group_by(Pclass,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
 
+ggplot(data=PclassProp,mapping=aes(x=Pclass,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+3.8)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Ticket Class")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+```
 
+  Passengers in first class had the highest probability of surviving followed by those in second and third class. Passengers in first class were 1.3 times more likely to survive than passengers in second class and were 2.6 times more likely to survive than passengers in third class. 
+
+  Passengers in third class were 1.4 times more likely to die than passengers on second class and were over 2 times more likely to die than passengers in first class.
+
+### Age and Survival
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+df$SurvivedFactor<-as.factor(df$Survived)
+levels(df$SurvivedFactor)<-c("Did not Survive","Survived")
+
+ggplot(data=df,mapping=aes(x=Age))+
+  geom_histogram(bins=20)+
+  facet_grid(~SurvivedFactor)+
+  labs(title="Age Distribution on the Titanic",subtitle = "Based on Survival")+
+  theme(legend.position = "none")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+```
+Looking at the distribution of age alone. There does not seem to be any outstanding relationship between age and survival. 
+
+### Number of passenger relatives and survival.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ParchProp<-df %>% group_by(Parch,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+SibSpProp<-df %>% group_by(SibSp,Survived)%>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ggplot(data=ParchProp,mapping=aes(x=Parch,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Number of Parents\nand/or Children Present with Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+ggplot(data=SibSpProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based On Number of Siblings\nand/or Spouse Present with Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+```
+Based on both these charts having/not having a spouse, sibling parent or child with an individual has an effect on the probability of survival. 
 
 # THIS IS A MESS HERE DON'T LOOK 
 
