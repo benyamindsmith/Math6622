@@ -50,7 +50,37 @@ The data set consists of 12 variables. The data dictionary is posted with the [d
 
 Before constructing a model, we should examine the relationships present between the various variables, survival and their various interactions. With this we can choose which parameters would be suitable. With this in mind the following visuals are created as part of the EDA to provide insight on what variables would be suitable for constructing a model for predicting passenger survivor.
 
+### Missing Data
+
+
+
+```{r}
+library(naniar)
+
+miss_var_summary(df)
+vis_miss(df)
+```
+
+
 ### Sex of Passenger and Survival
+
+```{r}
+survivalProp <- df %>% group_by(Sex,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("Yes","No"))+
+  labs(title="Survival on The Titanic",subtitle = "Male vs Female")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+```
+
 
 ## Objectives
 
@@ -65,21 +95,6 @@ The objective of this report will be to seek to answer the following questions.
 4.  (other question)
 
 5. Can the interaction of variable help predict survival?
-
-
-```{r}
-
-# Read data from online
-df<- readr::read_csv("https://gist.githubusercontent.com/michhar/2dfd2de0d4f8727f873422c5d959fff5/raw/fa71405126017e6a37bea592440b4bee94bf7b9e/titanic.csv")
-```
-
-
-```{r}
-library(naniar)
-
-miss_var_summary(df)
-vis_miss(df)
-```
 
 # Exploratory Data Analysis
 
