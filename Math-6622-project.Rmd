@@ -104,7 +104,7 @@ ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
   geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+3.8)+
   scale_fill_manual(name="Survived",
                     values=c("#F8766D","#00BFC4"),
-                    labels=c("Yes","No"))+
+                    labels=c("No","Yes"))+
   labs(title="Survival on The Titanic",subtitle = "Male vs Female")+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 ```
@@ -114,11 +114,16 @@ Overall, women on the Titanic were 3.9 times more likely to survive than men. Me
 ## Ticket Class of Passenger and Survival
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-PclassProp<-df %>% group_by(Pclass,Survived)%>% 
+
+df$TicketPclass <- as.factor(df$Pclass)
+levels(df$TicketPclass)<-c("1st Class","2nd Class","3rd Class")
+
+
+PclassProp<-df %>% group_by(TicketPclass,Survived)%>% 
   summarize(count=n()) %>% 
   mutate(pct=count/sum(count),Count=count)
 
-ggplot(data=PclassProp,mapping=aes(x=Pclass,y=pct,fill=as.factor(Survived)))+
+ggplot(data=PclassProp,mapping=aes(x=TicketPclass,y=pct,fill=as.factor(Survived)))+
   geom_bar(stat="identity",position="fill")+
   geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
   geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+3.8)+
@@ -186,6 +191,29 @@ Based on both these charts having/not having a spouse, sibling parent or child w
 Similarly with presence of siblings and/or a spouse individuals who came alone or had 1-4 siblings and/or a spouse with them had a higher probability than those who came with more (however the numbers for people who came with more than 5 siblings and/or a spouse is small). In particular those who came with one other person had the highest probability of survival.
 
 ## Interaction of Variables
+
+### Sex of Passenger, Ticket class and Survival
+
+Because there are significant differences in probability of survival based on the sex and ticket class of a passenger independently it makes sense to explore their interaction as well.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# This is altered from original
+sexClassSurvival <- df %>% group_by(Sex,TicketPclass,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+ggplot(data=sexClassSurvival,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~TicketPclass)+
+  geom_text(mapping= aes(label=paste(scales::percent(pct),"Count:",Count)),position="stack",size=3, vjust=0.75)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Male vs Female, by Ticket Class")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+
+```
+The 
 
 
 # THIS IS A MESS HERE DON'T LOOK 
@@ -283,16 +311,6 @@ ggplot(data=df,mapping=aes(x=Age,fill=Sex))+
   labs(title="Age Distribution on the Titanic based on  Survival",subtitle = "by Sex and Ticket Class")+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 
-
-ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
-  geom_bar(stat="identity",position="fill")+
-  facet_grid(~Pclass)+
-  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=0.75)+
-  scale_fill_manual(name="Survived",
-                    values=c("#F8766D","#00BFC4"),
-                    labels=c("Yes","No"))+
-  labs(title="Survival on The Titanic",subtitle = "Male vs Female, by Ticket Class")+
-  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 
 
 ggplot(data=SibSpProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
