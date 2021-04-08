@@ -50,8 +50,8 @@ The data set consists of 12 variables. The data dictionary is posted with the [d
 
 Before constructing a model, we should examine the relationships present between the various variables, survival and their various interactions. With this we can choose which parameters would be suitable. With this in mind the following visuals are created as part of the EDA to provide insight on what variables would be suitable for constructing a model for predicting passenger survival.
 
-```{r message=FALSE, warning=FALSE}
-
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
 # Read data from online
 df<- readr::read_csv("https://gist.githubusercontent.com/michhar/2dfd2de0d4f8727f873422c5d959fff5/raw/fa71405126017e6a37bea592440b4bee94bf7b9e/titanic.csv")
 ```
@@ -60,33 +60,57 @@ df<- readr::read_csv("https://gist.githubusercontent.com/michhar/2dfd2de0d4f8727
 
 Before examining the data it is important to first see what data is missing. Even if there is no treatment done to the missing data, awareness of missing data for a given variable is important to know about before adding it as a variable to our model. 
 
-Using the `naniar` package we are able to visualize and see the proportion of data missing in each variable field. 
-```{r}
+Using the `naniar` package we are able to visualize the proportion of data missing in each variable field. 
+```{r echo=FALSE}
 library(naniar)
 
 miss_var_summary(df)
+
 vis_miss(df)
 ```
 
+In the entire data set, 8.1% of the data is missing. Missing data is present in the `Cabin` (77.1%), `Age` (19.87%) and `Embarked` (0.22%) fields. While it is possible to use the data present in `Cabin` if we understand its context (see [here](https://titanic.fandom.com/wiki/First_Class_Staterooms) and [here](https://www.encyclopedia-titanica.org/cabins.html)) it will require some data wrangling and classification which is beyond the scope of this report.   
+
+With the missing data acknowledged, lets will proceed with looking at the relationships with various variables and passenger survival.
+
+### Questions
+
+The questions we are interesting in answering with this exploratory data analysis are:
+
+>1. Is there a higher probability of survival depending on a passenger's sex?
+>
+>2. Is there a higher probability of survival depending on ticket class?
+>
+>3. Is age a determining factor for survival?
+>
+>4. Does having a spouse, sibling(s), parent(s) and/or children with a passenger improve their probability for survival?
+>
+>5. How does the interaction of these variables relate to survival on the Titanic?  
+
+
 ### Sex of Passenger and Survival
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+survivalProp <- df %>% group_by(Sex,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
 
-## Objectives
-
-The objective of this report will be to seek to answer the following questions.
-
-1. Is there a higher probability of survival depending on a passenger's sex?
-
-2. Is there a higher probability of survival depending on ticket class?
-
-3. Is age a determining factor for survival?
-
-4.  (other question)
-
-5. Can the interaction of variable help predict survival?
+ggplot(data=survivalProp,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  geom_text(mapping= aes(label=scales::percent(pct)),position="stack",size=3, vjust=+2.5)+
+  geom_text(mapping= aes(label=paste("Count:",Count)),position="stack",size=3, vjust=+5.5)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("Yes","No"))+
+  labs(title="Survival on The Titanic",subtitle = "Male vs Female")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+```
+Overall, women on the Titanic were 3.9 times more likely to survive than men. Men on the Titanic were  3.1 times more likely to die than women.
 
 
 
 
+
+# THIS IS A MESS HERE DON'T LOOK 
 
 # Exploratory Data Analysis
 
