@@ -234,6 +234,7 @@ ggplot(data=sexClassSurvival,mapping=aes(x=Sex,y=pct,fill=as.factor(Survived)))+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 
 ```
+
 The probability of survival for women on the Titanic in first and second class was over 90 percent. However male passengers in first class were 19.7 times more likely to die than than females in the same class. Men in 3rd class were 1.37 times more likely to die than men in first class. Probability of survival for men in first class is more than double that of men in second and third class.
 
 ### Sex and Age of Passenger and Survival.
@@ -254,11 +255,13 @@ ggplot(data=AgeRangeProp,mapping=aes(x=AgeRange,y=pct,fill=as.factor(Survived)))
   labs(title="Survival on The Titanic",subtitle = "Based On Sex and Age")+
   theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
 ```
+
 Looking at the interaction of the binned age, women had an overall higher probability of suvival than men. Men who were younger had a larger probability of survival than men who were older. 
 
 ### Sex of Passenger, Number of Relatives Present and Survival
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(gridExtra)
 SibSpSexProp<-df %>% group_by(SibSp,Sex,Survived)%>% 
   summarize(count=n()) %>% 
   mutate(pct=count/sum(count),Count=count)
@@ -291,6 +294,7 @@ ggplot(data=ParchSexProp,mapping=aes(x=Parch,y=pct,fill=as.factor(Survived)))+
 
 
 ```
+
 Women who had a sibling or spouse had a higher probability of survival than men who had the same. Women who traveled alone had the highest probability of survival. Men who had a one sibling or spouse with them had a higher probability than men who traveled alone or came with more siblings and their spouse. Males who traveled with a 1-2 parents and/or children had a higher probability of survival than males who traveled alone or 
 
 ### Ticket class, Age and Survival
@@ -309,11 +313,114 @@ ggplot(data=PclassAgePropsurvivalProp,mapping=aes(x=AgeRange,y=pct,fill=as.facto
                     values=c("#F8766D","#00BFC4"),
                     labels=c("No","Yes"))+
   labs(title="Survival on The Titanic",subtitle = "Based On Age and Ticket class of the Passenger")+
-  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5))
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
+
 When faceted by ticket class, the trend that younger people have higher probability of survival remains, but it does decrease with with ticket class (i.e. younger passengers in first class have a higher probability of survival than passengers in second or 3rd class).
 
 ### Ticket Class, Number of Relatives and Survival
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+PclassParchsurvivalProp <- df %>% group_by(TicketPclass,Parch,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
 
+PclassSibSpsurvivalProp <- df %>% group_by(TicketPclass,SibSp,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+
+
+ggplot(data=PclassParchsurvivalProp,mapping=aes(x=Parch,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~TicketPclass)+
+  geom_text(mapping= aes(label=paste0(Count)),position="stack",size=2, vjust=0,hjust=4,angle=90)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based on number of parents\nand/or children present and\nTicket class of the Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(data=PclassSibSpsurvivalProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~TicketPclass)+
+  geom_text(mapping= aes(label=paste0(Count)),position="stack",size=2, vjust=0,hjust=4,angle=90)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based on number of siblings\nand/or spouse present and\nTicket class of the Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+Overall passengers who came alone or had 1-2 children/parents with them had a higher chance of probability of survival than those who came with more. However they had a better probability of survival if they were in first and second class than if they were in third class. The same is true with presence of a spouse or sibling.  
+
+### Age of Passenger, Number of Relatives and Survival.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+AgeParchsurvivalProp <- df %>% group_by(AgeRange,Parch,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+AgeSibSpsurvivalProp <- df %>% group_by(AgeRange,SibSp,Survived) %>% 
+  summarize(count=n()) %>% 
+  mutate(pct=count/sum(count),Count=count)
+
+
+ggplot(data=AgeParchsurvivalProp,mapping=aes(x=Parch,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~AgeRange)+
+  geom_text(mapping= aes(label=paste0(Count)),position="stack",size=2, vjust=0,hjust=4,angle=90)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based on number of parents\nand/or children present and\nTicket class of the Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(data=AgeSibSpsurvivalProp,mapping=aes(x=SibSp,y=pct,fill=as.factor(Survived)))+
+  geom_bar(stat="identity",position="fill")+
+  facet_grid(~AgeRange)+
+  geom_text(mapping= aes(label=paste0(Count)),position="stack",size=2, vjust=0,hjust=4,angle=90)+
+  scale_fill_manual(name="Survived",
+                    values=c("#F8766D","#00BFC4"),
+                    labels=c("No","Yes"))+
+  labs(title="Survival on The Titanic",subtitle = "Based on number of siblings\nand/or spouse present and\nTicket class of the Passenger")+
+  theme(plot.title = element_text(hjust=0.5),plot.subtitle = element_text(hjust=0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+There is an effect of age and presence of relatives on survival. In particular younger individuals with fewer members who were a spouse or sibling  with them had a better probability of survival than those with more of those family members. Younger passengers with more parents and/or children with them had a higher probability of survival than those with less (generally).
+
+# Model Construction 
+
+After exploring the data, we look to choose a GLM which can be used to model survival on the Titanic. Since we are dealing with binary response data, we will be working with a **logit** model. There will be two models which we will be looking at. 
+
+1. A model that only considers the main effects of the variables examined.
+
+```{r warning=FALSE}
+model1<-glm(Survived ~ Sex+TicketPclass+AgeRange+SibSp+Parch ,family = binomial(link="logit"),data=df)
+```
+
+   
+   This is because when we looked at the variables and their effect on survival, there were interesting observations apparent in the data. 
+   
+2. A model which considers the interaction terms. 
+
+```{r warning=FALSE}
+model2<-glm(Survived ~ Sex*TicketPclass*AgeRange*SibSp*Parch ,family = binomial(link="logit"),data=df)
+```
+  The reason to consider interactions is because from the exploratory data analysis we noted that there are interactions in which the data behaves differently.
+  
+# Analysis results
+
+## The Main Effects Model
+
+```{r}
+summary(model1)
+```
 
